@@ -1,0 +1,13 @@
+stages:
+  - deploy
+
+deploy:
+  stage: deploy
+  tags:
+    - korsi-runner
+  script:
+    - cd /app/korsi/korsi-panel
+    - git pull origin develop
+    - docker compose up --build -d
+  only:
+    - develop

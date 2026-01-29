@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <title>جلسه — گفتار زنده</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://cdn.jsdelivr.net/npm/socket.io-client@4.7.5/dist/socket.io.min.js"></script>
+    <link rel="stylesheet" href="fonts/YekanBakhVariable/yekan-bakh-var.css" />
+    <style>
+      :root {
+        --bg: #f7f9fc;
+        --panel: #ffffff;
+        --panel-2: #ffffff;
+        --text: #111827;
+        --muted: #6b7280;
+        --accent: #2563eb;
+        --danger: #dc2626;
+        --success: #16a34a;
+        --warning: #f59e0b;
+        --border: #e5e7eb;
+        --shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+        --radius: 14px;
+        --font-family: "YekanBakh", ui-sans-serif, system-ui, -apple-system;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        margin: 0;
+        font-family: var(--font-family);
+        background: radial-gradient(
+          1200px 800px at 70% 20%,
+          #ffffff,
+          var(--bg)
+        );
+        color: var(--text);
+      }
+      .topbar {
+        height: 110px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 20px;
+        background: var(--panel);
+        border-bottom: 1px solid var(--border);
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 700;
+        color: var(--text);
+      }
+      .brand-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--success);
+        box-shadow: 0 0 8px var(--success);
+      }
+
+      .brand-logo {
+        height: 24px;
+        width: auto;
+        display: block;
+      }
+      .meeting-info {
+        display: flex;https://docs.google.com/spreadsheets/d/1EpsS3rcqu_fNuhHDlwTpRT00swSJGdnlpvG0qWSi1h4/edit?gid=0#gid=0
+        align-items: center;
+        gap: 14px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+      .pill {
+        background: var(--panel);
+        padding: 6px 10px;
+        border-radius: 999px;
+        box-shadow: var(--shadow);
+        border: 1px solid var(--border);
+        color: var(--text);
+      }
+      .container {
+        height: calc(100% - 110px);
+        display: grid;
+        grid-template-columns: 1fr 360px;
+        gap: 16px;
+        padding: 16px;
+      }
+      .stage {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        position: relative;
+        overflow: hidden;
+        display: grid;
+        place-items: center;
+        min-height: 400px;
+        box-shadow: var(--shadow);
+      }
+      .tile {
+        width: min(820px, 90%);
+        aspect-ratio: 16 / 9;
+        border-radius: calc(var(--radius) + 2px);
+        background: #f3f4f6;
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow);
+        position: relative;
+        overflow: hidden;
+        display: grid;
+        place-items: center;
+      }
+      .avatar {
+        width: 110px;
+        height: 110px;
+        border-radius: 50%;
+        background: linear-gradient(145deg, #e5e7eb, #ffffff);
+        border: 1px solid var(--border);
+        display: grid;
+        place-items: center;
+        font-size: 36px;
+        color: var(--text);
+      }
+      .tile-footer {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 10px 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: linear-gradient(
+          180deg,
+          transparent,
+          rgba(255, 255, 255, 0.8)
+        );
+      }
+      .name-pill {
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid var(--border);
+        color: var(--text);
+        padding: 6px 10px;
+        border-radius: 10px;
+        font-size: 13px;
+        backdrop-filter: blur(6px);
+      }
+      .controls {
+        position: absolute;
+        bottom: 24px;
+        right: 50%;
+        transform: translateX(50%);
+        background: rgba(255, 255, 255, 0.85);
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        padding: 8px;
+        display: flex;
+        gap: 10px;
+        backdrop-filter: blur(10px);
+        box-shadow: var(--shadow);
+      }
+      .btn {
+        border: 0;
+        border-radius: 999px;
+        padding: 12px 16px;
+        display: inline-flex;
+        gap: 10px;
+        align-items: center;
+        justify-content: center;
+        color: var(--text);
+        font-weight: 600;
+        cursor: pointer;
+        background: var(--panel);
+        border: 1px solid var(--border);
+      }
+      .btn.icon {
+        width: 44px;
+        height: 44px;
+        padding: 0;
+        aspect-ratio: 1;
+      }
+      .btn.primary {
+        font-family: var(--font-family);
+        background: var(--success);
+        color: #ffffff;
+        border-color: var(--success);
+      }
+      .btn.danger {
+        background: var(--danger);
+        color: #ffffff;
+        border-color: var(--danger);
+      }
+      .btn[disabled] {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      .side {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+      }
+      .side header {
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--border);
+        font-weight: 700;
+      }
+      .side .content {
+        padding: 12px 16px;
+        overflow: auto;
+        font-size: 14px;
+        line-height: 1.7;
+        white-space: pre-wrap;
+        color: var(--text);
+      }
+      .side footer {
+        padding: 10px 16px;
+        border-top: 1px solid var(--border);
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .join-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.5),
+          rgba(255, 255, 255, 0.85)
+        );
+        display: grid;
+        place-items: center;
+        z-index: 3;
+      }
+      .join-card {
+        width: min(560px, 92%);
+        border-radius: 16px;
+        padding: 22px;
+        background: var(--panel-2);
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow);
+      }
+      .join-card h2 {
+        margin: 0 0 8px 0;
+      }
+      .join-card p {
+        margin: 0;
+        color: var(--muted);
+      }
+      .join-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: end;
+        gap: 10px;
+        margin-top: 14px;
+      }
+      .kbd {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+          "Liberation Mono";
+        background: #f3f4f6;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 2px 6px;
+        color: var(--text);
+      }
+      .toast {
+        position: fixed;
+        left: 16px;
+        bottom: 16px;
+        padding: 10px 14px;
+        border-radius: 10px;
+        background: rgba(0, 0, 0, 0.75);
+        color: #ffffff;
+        border: 1px solid rgba(0, 0, 0, 0.15);
+        box-shadow: var(--shadow);
+        display: none;
+      }
+      /* Summary Modal */
+      .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.35);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 50;
+        padding: 16px;
+      }
+      .modal-backdrop.open {
+        display: flex;
+      }
+      .modal-card {
+        width: min(720px, 100%);
+        max-height: 80vh;
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        box-shadow: var(--shadow);
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+        overflow: hidden;
+        direction: rtl;
+      }
+      .modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 12px 14px;
+        border-bottom: 1px solid var(--border);
+        font-weight: 700;
+      }
+      .modal-body {
+        padding: 12px 14px;
+        overflow: auto;
+        font-size: 14px;
+        line-height: 1.8;
+        white-space: pre-wrap;
+        color: var(--text);
+      }
+      .modal-footer {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+        padding: 10px 14px;
+        border-top: 1px solid var(--border);
+        background: #fafafa;
+      }
+      .badge {
+        padding: 3px 8px;
+        border-radius: 999px;
+        font-size: 12px;
+        border: 1px solid var(--border);
+        background: #f3f4f6;
+        color: var(--text);
+      }
+      .tiny {
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .tiny-stack {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .main-title {
+        margin: 8px 0;
+      }
+      @media (max-width: 960px) {
+        .container {
+          grid-template-columns: 1fr;
+        }
+        .side {
+          order: -1;
+          height: 40vh;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="topbar">
+      <div class="brand">
+        <div>
+          <img class="brand-logo" src="public/logo-full.png" alt="لوگو" />
+          <p class="main-title" id="meeting-title">جلسه دموی کرسی بهمن به بانک شهر</p>
+          <div class="tiny tiny-stack">
+            <p class="main-title" id="meeting-location">📌 دفتر بانک شهر</p>
+            <p class="main-title" id="meeting-time">⏲️ ساعت 14 الی 16</p>
+          </div>
+        </div>
+        <!-- <div class="brand-dot"></div> -->
+      </div>
+      <div class="meeting-info">
+        <!-- <div class="pill">کد جلسه: <span id="meeting-code">abc-defg-hij</span></div> -->
+        <div class="tiny" id="clock">--:--</div>
+      </div>
+    </div>
+
+    <div class="container">
+      <section class="stage">
+        <div class="tile" id="self-tile">
+          <div class="avatar" id="avatar">شما</div>
+          <div class="tile-footer">
+            <div class="name-pill" id="name-pill">شما</div>
+            <div class="badge" id="mic-badge">میکروفون خاموش</div>
+          </div>
+
+          <div class="join-overlay" id="join-overlay">
+            <div class="join-card">
+              <!-- <h2>آماده پیوستن هستید؟</h2> -->
+              <p id="meeting-description">
+                با کسب اجازه از هیئت مدیره محترم توسعه کارآفرینی بهمن، در این
+                جلسه ویژگی های دستیار هوشمند هیئت مدیره بهمن به مدیران یکی از
+                شرکت های زیرمجموعه بانک شهر ارائه می شود. هدف از این جلسه تصمیم
+                گیری در مورد امکان استفاده از کرسی در هیئت مدیره های شرکت های
+                تابعه این بانک است.
+              </p>
+              <div class="join-actions">
+                <!-- <button class="btn" id="btn-mic-toggle">
+                  تغییر وضعیت میکروفون
+                </button> -->
+                <p class="tiny">با پیوستن به جلسه، میکروفون شما روشن می‌شود.</p>
+                <button class="btn primary" id="btn-join">پیوستن</button>
+              </div>
+              <!-- <div class="tiny" style="margin-top: 10px">
+                کد جلسه: <span class="kbd" id="code2">abc-defg-hij</span>
+              </div> -->
+            </div>
+          </div>
+        </div>
+
+        <div class="controls" id="controls" style="display: none">
+          <button class="btn icon" id="btn-mute" title="قطع/وصل صدا">🎙️</button>
+          <!-- <button class="btn icon" id="btn-cc" title="نمایش زیرنویس">💬</button> -->
+          <button class="btn danger primary" id="btn-leave">ترک جلسه</button>
+        </div>
+      </section>
+
+      <aside class="side">
+        <header>متن زنده</header>
+        <div class="content" id="transcript"></div>
+        <footer>
+          <span id="status">قطع</span>
+        </footer>
+      </aside>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <!-- Summary Modal -->
+    <div class="modal-backdrop" id="summary-modal">
+      <div class="modal-card" role="dialog" aria-labelledby="summary-title" aria-modal="true">
+        <div class="modal-header">
+          <span id="summary-title">خلاصه جلسه</span>
+          <button class="btn icon" id="btn-summary-close" title="بستن">✖</button>
+        </div>
+        <div class="modal-body" id="summary-content"></div>
+        <div class="modal-footer">
+          <button class="btn primary" id="btn-summary-ok">بازگشت به کرسی</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      
+      const searchParams = new URLSearchParams(location.search);
+        const queries = {}
+        for (let pair of searchParams.entries()) {
+          queries[pair[0]] = pair[1];
+        }
+
+      // ساخت کد جلسه و ساعت
+      const code =
+        Math.random().toString(36).slice(2, 5) +
+        "-" +
+        Math.random().toString(36).slice(2, 6) +
+        "-" +
+        Math.random().toString(36).slice(2, 5);
+      // document.getElementById("meeting-code").textContent = code.toLowerCase();
+      // document.getElementById("code2").textContent = code.toLowerCase();
+      const clockEl = document.getElementById("clock");
+      setInterval(() => {
+        clockEl.textContent = new Date().toLocaleTimeString("fa-IR", {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      }, 1000);
+
+      // عناصر UI
+      const joinOverlay = document.getElementById("join-overlay");
+      const btnJoin = document.getElementById("btn-join");
+      const btnLeave = document.getElementById("btn-leave");
+      const btnMute = document.getElementById("btn-mute");
+      // const btnMicToggle = document.getElementById("btn-mic-toggle");
+      const transcriptEl = document.getElementById("transcript");
+      const statusEl = document.getElementById("status");
+      const micBadge = document.getElementById("mic-badge");
+      const controls = document.getElementById("controls");
+      const toast = document.getElementById("toast");
+      const meetingTitle = document.getElementById("meeting-title");
+      const meetingDescription = document.getElementById("meeting-description");
+      const meetingLocation = document.getElementById("meeting-location");
+      const meetingTime = document.getElementById("meeting-time");
+      const summaryModal = document.getElementById("summary-modal");
+      const summaryContent = document.getElementById("summary-content");
+      const btnSummaryClose = document.getElementById("btn-summary-close");
+      const btnSummaryOk = document.getElementById("btn-summary-ok");
+
+      function showToast(msg) {
+        toast.textContent = msg;
+        toast.style.display = "block";
+        setTimeout(() => (toast.style.display = "none"), 1800);
+      }
+
+      // اتصال Socket.IO (آدرس را با سرور خود جایگزین کنید)
+      // const socket = io("http://192.168.1.109:4321", {
+      const socket = io('https://dev.api.korsi.pish.run', {
+        transports: ["websocket"],
+      });
+
+      socket.on("connect", () => setStatus("متصل"));
+      socket.on("disconnect", () => setStatus("قطع"));
+      socket.on("connect_error", (err) => {
+        setStatus("خطا در اتصال");
+        showToast("خطای سوکت: " + err.message);
+      });
+
+      socket.on("voice:transcript", ({ text, status }) => {
+        if (status === "session_started") {
+          showToast("جلسه تبدیل گفتار شروع شد");
+          return;
+        }
+        if (text) {
+          transcriptEl.textContent = text;
+          transcriptEl.scrollTop = transcriptEl.scrollHeight;
+        }
+      });
+
+      socket.on("voice:final", ({ text }) => {
+        if (text) {
+          transcriptEl.textContent = text + "\n[پایان جلسه]";
+          transcriptEl.scrollTop = transcriptEl.scrollHeight;
+        }
+        showToast("جلسه پایان یافت");
+      });
+
+      socket.on("voice:error", (msg) => {
+        showToast("خطا: " + msg);
+      });
+
+      function setStatus(s) {
+        statusEl.textContent = s;
+      }
+
+      // Summary modal helpers
+      function openSummaryModal(text) {
+        summaryContent.textContent = text || "";
+        summaryModal.classList.add("open");
+      }
+      function closeSummaryModal() {
+        summaryModal.classList.remove("open");
+      }
+      btnSummaryClose.addEventListener("click", closeSummaryModal);
+      btnSummaryOk.addEventListener("click", () => {
+        closeSummaryModal()
+        window.location.href = `/dashboard/${queries.organization_id}/meet`;
+      });
+      summaryModal.addEventListener("click", (e) => {
+        if (e.target === summaryModal) closeSummaryModal();
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closeSummaryModal();
+      });
+
+      // ضبط و ارسال صوت به ۱۶k تک‌کاناله PCM16
+      let audioContext, mediaStream, processorNode, sourceNode;
+      let isMuted = false;
+
+      async function startMicAndStream() {
+        mediaStream = await navigator.mediaDevices.getUserMedia({
+          audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true,
+          },
+          video: false,
+        });
+        micBadge.textContent = "میکروفون روشن";
+
+        audioContext = new (window.AudioContext || window.webkitAudioContext)({
+          latencyHint: "interactive",
+        });
+        sourceNode = audioContext.createMediaStreamSource(mediaStream);
+
+        const bufferSize = 4096;
+        processorNode = audioContext.createScriptProcessor(bufferSize, 1, 1);
+
+        socket.emit("voice:start", {
+          audio_format: "pcm_s16le",
+          sample_rate: 16000,
+          num_channels: 1,
+          translation: "none",
+          language_hints: ["fa"],
+        });
+
+        const inputSampleRate = audioContext.sampleRate;
+        const targetRate = 16000;
+
+        processorNode.onaudioprocess = (e) => {
+          if (isMuted) return;
+          const input = e.inputBuffer.getChannelData(0);
+          const down = downsampleFloat32(input, inputSampleRate, targetRate);
+          if (!down.length) return;
+          const pcm16 = floatTo16BitPCM(down);
+          socket.emit("voice:chunk", pcm16.buffer);
+        };
+
+        sourceNode.connect(processorNode);
+        processorNode.connect(audioContext.destination);
+      }
+
+      function stopMicAndStream() {
+        try {
+          socket.emit("voice:stop");
+        } catch {}
+        if (processorNode) {
+          processorNode.disconnect();
+          processorNode.onaudioprocess = null;
+          processorNode = null;
+        }
+        if (sourceNode) {
+          sourceNode.disconnect();
+          sourceNode = null;
+        }
+        if (audioContext) {
+          audioContext.close();
+          audioContext = null;
+        }
+        if (mediaStream) {
+          mediaStream.getTracks().forEach((t) => t.stop());
+          mediaStream = null;
+        }
+        micBadge.textContent = "میکروفون خاموش";
+      }
+
+      function floatTo16BitPCM(float32Array) {
+        const out = new Int16Array(float32Array.length);
+        for (let i = 0; i < float32Array.length; i++) {
+          let s = Math.max(-1, Math.min(1, float32Array[i]));
+          out[i] = s < 0 ? s * 0x8000 : s * 0x7fff;
+        }
+        return out;
+      }
+
+      function downsampleFloat32(buffer, inRate, outRate) {
+        if (outRate === inRate) return buffer;
+        const ratio = inRate / outRate;
+        const newLen = Math.floor(buffer.length / ratio);
+        if (!isFinite(newLen) || newLen <= 0) return new Float32Array(0);
+        const result = new Float32Array(newLen);
+        let pos = 0,
+          idx = 0;
+        while (idx < newLen) {
+          const nextPos = Math.round((idx + 1) * ratio);
+          let sum = 0,
+            count = 0;
+          for (let i = pos; i < nextPos && i < buffer.length; i++) {
+            sum += buffer[i];
+            count++;
+          }
+          result[idx] = count ? sum / count : 0;
+          pos = nextPos;
+          idx++;
+        }
+        return result;
+      }
+
+      async function getSummerize() {
+        try {
+          const response = await fetch("https://dev.api.korsi.pish.run/api/chats/summerize", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              message: transcriptEl.textContent,
+            }),
+          });
+          const data = await response.json();
+          // Try common fields; fallback to pretty JSON
+          const text = data?.data?.choices?.map((choice) => choice.message.content)?.join("\n");
+          openSummaryModal(text);
+        } catch (err) {
+          openSummaryModal("خطا در دریافت خلاصه: " + ((err && err.message) || err));
+        }
+      }
+
+      // رویدادهای UI
+      btnJoin.addEventListener("click", async () => {
+        try {
+          await startMicAndStream();
+          joinOverlay.style.display = "none";
+          controls.style.display = "flex";
+          showToast("به جلسه پیوستید");
+        } catch (err) {
+          showToast("خطای دسترسی میکروفون: " + ((err && err.message) || err));
+        }
+      });
+
+      btnLeave.addEventListener("click", () => {
+        stopMicAndStream();
+        controls.style.display = "none";
+        joinOverlay.style.display = "grid";
+        showToast("جلسه را ترک کردید");
+        getSummerize()
+      });
+
+      btnMute.addEventListener("click", () => {
+        isMuted = !isMuted;
+        micBadge.textContent = isMuted ? "میکروفون خاموش" : "میکروفون روشن";
+        showToast(isMuted ? "میوت شد" : "میوت برداشته شد");
+      });
+
+      // btnMicToggle.addEventListener("click", async () => {
+      //   if (mediaStream) {
+      //     mediaStream.getTracks().forEach((t) => t.stop());
+      //     mediaStream = null;
+      //     micBadge.textContent = "میکروفون خاموش";
+      //     showToast("میکروفون خاموش");
+      //   } else {
+      //     try {
+      //       mediaStream = await navigator.mediaDevices.getUserMedia({
+      //         audio: true,
+      //         video: false,
+      //       });
+      //       micBadge.textContent = "میکروفون روشن";
+      //       showToast("میکروفون روشن");
+      //       mediaStream.getTracks().forEach((t) => t.stop());
+      //       mediaStream = null;
+      //     } catch (e) {
+      //       showToast("اجازه دسترسی به میکروفون داده نشد");
+      //     }
+      //   }
+      // });
+
+      window.addEventListener("beforeunload", () => {
+        try {
+          stopMicAndStream();
+        } catch {}
+      });
+
+      (function setAvatar() {
+        // const initials = (Intl.DateTimeFormat().resolvedOptions().timeZone || "شما")
+        //   .split("/")
+        //   .pop()
+        //   .slice(0, 2)
+        //   .toUpperCase();
+        const initials = "شما";
+        document.getElementById("avatar").textContent = initials;
+
+        meetingTitle.innerHTML = queries.title
+        meetingDescription.innerHTML = queries.description 
+        meetingLocation.innerHTML = "📌 " + queries.location
+        meetingTime.innerHTML = `⏲️ ساعت ${queries.start_at} الی ${queries.end_at}`
+      })();
+    </script>
+  </body>
+</html>

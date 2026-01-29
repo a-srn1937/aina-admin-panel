@@ -1,0 +1,48 @@
+# Aina Admin Panel Development Rules
+
+## Project Overview
+- This is the admin panel for Aina psychological testing platform
+- Built with Next.js 14+ and MUI (Material-UI)
+- Uses JWT authentication with phone/password login
+- Supports multi-language content (variants) for tests, questions, and options
+
+## Key Features
+- User management (list users)
+- Test management (CRUD operations with multi-language variants)
+- Question management (with options and variants)
+- Payment tracking
+
+## Multi-Language System
+- Tests, Questions, and Options have "variants" for different languages
+- Each variant has: language_id, variant_type (self/other), and content fields
+- variant_type: 'self' for self-assessment, 'other' for peer assessment
+
+## API Endpoints (Backend)
+- Auth: POST /auth/login (phone, password)
+- Admin: GET /admin/users, /admin/tests, /admin/payments
+- Tests: CRUD at /tests, variants at /tests/:id/variants
+- Questions: CRUD at /questions, bulk create at /questions/bulk
+- Options: CRUD at /options
+
+## Code Quality & Architecture
+- Follow clean code principles
+- Use TypeScript/JavaScript with proper typing
+- Implement features as reusable components
+- Use React Query for data fetching
+
+## MUI Implementation
+- Use MUI components as primary UI building blocks
+- DO NOT use inline CSS - use theme extensions instead
+- Use the theme provider for consistent styling
+
+## Component Development
+- Keep components focused on single responsibility
+- Use React Hook Form for form handling
+- Implement proper loading and error states
+
+## Project Structure
+- /src/api - API hooks using React Query
+- /src/sections - Page sections and views
+- /src/auth - Authentication system
+- /src/layouts - Layout components
+- /src/components - Reusable components

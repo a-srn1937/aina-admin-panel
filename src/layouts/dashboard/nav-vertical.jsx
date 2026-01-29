@@ -1,0 +1,132 @@
+import { varAlpha, mergeClasses } from 'minimal-shared/utils';
+
+import Box from '@mui/material/Box';
+import { Typography } from '@mui/material';
+import { styled } from '@mui/material/styles';
+
+import { Logo } from 'src/components/logo';
+import { Scrollbar } from 'src/components/scrollbar';
+import { NavSectionMini, NavSectionVertical } from 'src/components/nav-section';
+
+import { layoutClasses } from '../core';
+import { NavUserCard } from '../components/nav-user-card';
+import { NavToggleButton } from '../components/nav-toggle-button';
+
+// ----------------------------------------------------------------------
+
+export function NavVertical({
+  sx,
+  data,
+  slots,
+  cssVars,
+  className,
+  isNavMini,
+  hideToggle,
+  onToggleNav,
+  checkPermissions,
+  layoutQuery = 'md',
+  ...other
+}) {
+  const renderNavVertical = () => (
+    <>
+      {slots?.topArea ?? (
+        <Box sx={{ pl: 3.5, pt: 2.5, pb: 1, display: 'flex', alignItems: 'center' }}>
+          <Logo isSingle={false} />
+          <Typography variant="h6">پنل مدیریت آینا</Typography>
+        </Box>
+      )}
+
+      {/** @slot Organization popover */}
+      {/* {UI_CONFIG.organizations && (
+        <OrganizationPopover sx={{ justifyContent: 'flex-start', gap: 1 }} />
+      )} */}
+
+      <Scrollbar fillContent>
+        <NavSectionVertical
+          data={data}
+          cssVars={cssVars}
+          checkPermissions={checkPermissions}
+          sx={{ px: 2, flex: '1 1 auto' }}
+        />
+
+        {slots?.bottomArea ?? <NavUserCard />}
+      </Scrollbar>
+    </>
+  );
+
+  const renderNavMini = () => (
+    <>
+      {slots?.topArea ??
+        (!hideToggle && (
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 2.5 }}>
+            <Logo sx={{ width: 35, height: 30 }} />
+          </Box>
+        ))}
+
+      <NavSectionMini
+        data={data}
+        cssVars={cssVars}
+        checkPermissions={checkPermissions}
+        sx={[
+          (theme) => ({
+            ...theme.mixins.hideScrollY,
+            pb: 2,
+            pt: hideToggle ? 1 : 0,
+            px: 0.5,
+            flex: '1 1 auto',
+            overflowY: 'auto',
+          }),
+        ]}
+      />
+
+      {slots?.bottomArea}
+    </>
+  );
+
+  return (
+    <NavRoot
+      hideToggle={hideToggle}
+      isNavMini={isNavMini}
+      layoutQuery={layoutQuery}
+      className={mergeClasses([layoutClasses.nav.root, layoutClasses.nav.vertical, className])}
+      sx={sx}
+      {...other}
+    >
+      {!hideToggle && (
+        <NavToggleButton
+          isNavMini={isNavMini}
+          onClick={onToggleNav}
+          sx={[
+            (theme) => ({
+              display: 'none',
+              [theme.breakpoints.up(layoutQuery)]: { display: 'inline-flex' },
+            }),
+          ]}
+        />
+      )}
+      {isNavMini ? renderNavMini() : renderNavVertical()}
+    </NavRoot>
+  );
+}
+
+// ----------------------------------------------------------------------
+
+const NavRoot = styled('div', {
+  shouldForwardProp: (prop) => !['isNavMini', 'hideToggle', 'layoutQuery', 'sx'].includes(prop),
+})(({ isNavMini, hideToggle, layoutQuery = 'md', theme }) => ({
+  top: hideToggle ? 'var(--layout-dashboard-header-height)' : 0,
+  left: 0,
+  height: '100%',
+  display: 'none',
+  position: 'fixed',
+  flexDirection: 'column',
+  zIndex: 'var(--layout-nav-zIndex)',
+  backgroundColor: 'var(--layout-nav-bg)',
+  width: isNavMini ? 'var(--layout-nav-mini-width)' : 'var(--layout-nav-vertical-width)',
+  borderRight: `1px solid var(--layout-nav-border-color, ${varAlpha(theme.vars.palette.grey['500Channel'], 0.12)})`,
+  transition: theme.transitions.create(['width'], {
+    easing: 'var(--layout-transition-easing)',
+    duration: 'var(--layout-transition-duration)',
+  }),
+  [theme.breakpoints.up(layoutQuery)]: { display: 'flex' },
+}));
