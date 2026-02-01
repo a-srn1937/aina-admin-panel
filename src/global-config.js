@@ -20,7 +20,7 @@ export const CONFIG = {
   appName: 'Aina Admin',
   appVersion: packageJson.version,
   serverUrl: process.env.NEXT_PUBLIC_SERVER_URL ?? 'https://api.aina.vision/api',
-  assetsDir: process.env.NEXT_PUBLIC_ASSETS_DIR ?? 'http://localhost:3000',
+  assetsDir: process.env.NEXT_PUBLIC_ASSETS_DIR ?? 'https://api.aina.vision/api',
   isStaticExport: JSON.parse(process.env.BUILD_STATIC_EXPORT ?? 'false'),
   /**
    * Auth
