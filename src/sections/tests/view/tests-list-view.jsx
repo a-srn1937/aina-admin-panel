@@ -9,21 +9,20 @@ import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
-import ToggleButton from '@mui/material/ToggleButton';
 import Typography from '@mui/material/Typography';
 import DialogTitle from '@mui/material/DialogTitle';
 import CardContent from '@mui/material/CardContent';
+import ToggleButton from '@mui/material/ToggleButton';
 import DialogContent from '@mui/material/DialogContent';
 import CardActionArea from '@mui/material/CardActionArea';
-import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import CircularProgress from '@mui/material/CircularProgress';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 
-import { CONFIG } from 'src/global-config';
-
 import { useGetTests } from 'src/api';
+import { CONFIG } from 'src/global-config';
 
 import { Iconify } from 'src/components/iconify';
 
