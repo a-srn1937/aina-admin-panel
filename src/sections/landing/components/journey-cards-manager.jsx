@@ -71,6 +71,13 @@ export function JourneyCardsManager() {
     <>
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
         <Typography variant="h6">کارت‌های مسیر</Typography>
+        <Button
+          variant="contained"
+          startIcon={<Iconify icon="mdi:plus" />}
+          onClick={() => setOpenCreate(true)}
+        >
+          افزودن کارت
+        </Button>
       </Stack>
 
       <Card>
