@@ -59,11 +59,11 @@ export const useNavItems = () =>
             path: paths.dashboard.service.root,
             icon: ICONS.file,
           },
-          {
-            title: 'شاخص‌ها',
-            path: paths.dashboard.index.root,
-            icon: ICONS.analytics,
-          },
+          // {
+          //   title: 'شاخص‌ها',
+          //   path: paths.dashboard.index.root,
+          //   icon: ICONS.analytics,
+          // },
           {
             title: 'پیام‌ها',
             path: paths.dashboard.feedback.root,
