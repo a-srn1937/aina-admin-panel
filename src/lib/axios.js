@@ -155,4 +155,8 @@ export const endpoints = {
     resolve: (id) => `/feedback/${id}/resolve`,
     pendingCount: '/feedback/pending-count',
   },
+  rating: {
+    root: '/rating',
+    stats: '/rating/stats',
+  },
 };

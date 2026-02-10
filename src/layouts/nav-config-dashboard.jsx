@@ -2,8 +2,6 @@ import { useMemo } from 'react';
 
 import { paths } from 'src/routes/paths';
 
-import { CONFIG } from 'src/global-config';
-
 import { SvgColor } from 'src/components/svg-color';
 
 // ----------------------------------------------------------------------
@@ -68,6 +66,11 @@ export const useNavItems = () =>
             title: 'پیام‌ها',
             path: paths.dashboard.feedback.root,
             icon: ICONS.chat,
+          },
+          {
+            title: 'امتیازها',
+            path: paths.dashboard.rating.root,
+            icon: ICONS.analytics,
           },
         ],
       },

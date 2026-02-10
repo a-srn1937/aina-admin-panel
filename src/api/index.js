@@ -1,3 +1,6 @@
+// Tags
+export * from './tag';
+
 // Auth
 export * from './auth';
 
@@ -13,6 +16,9 @@ export * from './file';
 // Options
 export * from './option';
 
+// Rating
+export * from './rating';
+
 // Formulas
 export * from './formula';
 
@@ -22,11 +28,17 @@ export * from './payment';
 // Services
 export * from './service';
 
+// Landing
+export * from './landing';
+
 // Questions
 export * from './question';
 
 // Languages
 export * from './language';
+
+// Feedback
+export * from './feedback';
 
 // Indexes
 export * from './index-api';
@@ -37,17 +49,8 @@ export * from './dashboard';
 // Site Content
 export * from './site-content';
 
-// Landing
-export * from './landing';
-
 // Tag Categories
 export * from './tag-category';
 
-// Tags
-export * from './tag';
-
 // Demographic Questions
 export * from './demographic-question';
-
-// Feedback
-export * from './feedback';

@@ -54,5 +54,8 @@ export const paths = {
     feedback: {
       root: `${ROOTS.DASHBOARD}/feedback`,
     },
+    rating: {
+      root: `${ROOTS.DASHBOARD}/ratings`,
+    },
   },
 };
