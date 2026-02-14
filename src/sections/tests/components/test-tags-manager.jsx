@@ -40,9 +40,9 @@ export function TestTagsManager({ testId }) {
   const { data: tagsData } = useGetTags();
   const allTags = tagsData?.data || [];
 
-  const { data: testTagsData, isLoading } = useGetTestTags(testId);
-  const testTags = testTagsData?.tags || [];
-  const currentLogic = testTagsData?.matching_logic || 'OR';
+  const { data: testTagsData, isLoading, refetch } = useGetTestTags(testId);
+  const testTags = testTagsData?.data?.tags || [];
+  const currentLogic = testTagsData?.data?.matching_logic || 'OR';
 
   const { mutateAsync: assignTag } = useAssignTagToTest();
   const { mutateAsync: removeTag } = useRemoveTagFromTest();
@@ -63,6 +63,7 @@ export function TestTagsManager({ testId }) {
         await assignTag({ testId, data: { tag_id: tagId, matching_logic: matchingLogic } });
       }
 
+      await refetch();
       toast.success('تگ‌ها با موفقیت اضافه شدند');
     } catch (error) {
       console.error(error);
@@ -73,6 +74,7 @@ export function TestTagsManager({ testId }) {
   const handleRemoveTag = async (tagId) => {
     try {
       await removeTag({ testId, tagId });
+      await refetch();
       setSelectedTags((prev) => prev.filter((id) => id !== tagId));
       toast.success('تگ با موفقیت حذف شد');
     } catch (error) {
@@ -84,6 +86,7 @@ export function TestTagsManager({ testId }) {
   const handleLogicChange = async (newLogic) => {
     try {
       await updateLogic({ testId, data: { matching_logic: newLogic } });
+      await refetch();
       setMatchingLogic(newLogic);
       toast.success('منطق تطبیق با موفقیت تغییر کرد');
     } catch (error) {
