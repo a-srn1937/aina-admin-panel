@@ -33,6 +33,7 @@ const testSchema = z.object({
   is_active: z.boolean(),
   order: z.coerce.number().min(0, 'ترتیب باید عدد مثبت باشد'),
   image_id: z.number().nullable().optional(),
+  icon_id: z.number().nullable().optional(),
   min_participants: z.coerce.number().min(0),
   max_participants: z.coerce.number().min(0),
   system_prompt: z.string().optional(),
@@ -61,7 +62,9 @@ export function TestCreateForm({ onSuccess }) {
   const { data: languagesData } = useGetLanguages();
   const languages = languagesData || [];
   const [imagePreview, setImagePreview] = useState(null);
+  const [iconPreview, setIconPreview] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [isUploadingIcon, setIsUploadingIcon] = useState(false);
 
   const { mutateAsync: createTest, isPending } = useCreateTest();
   const { mutateAsync: uploadFile } = useUploadFile();
@@ -71,6 +74,7 @@ export function TestCreateForm({ onSuccess }) {
     is_active: true,
     order: 0,
     image_id: null,
+    icon_id: null,
     min_participants: 0,
     max_participants: 0,
     system_prompt: '',
@@ -129,6 +133,32 @@ export function TestCreateForm({ onSuccess }) {
     setImagePreview(null);
   };
 
+  const handleIconUpload = async (acceptedFiles) => {
+    const file = acceptedFiles[0];
+    if (!file) return;
+
+    setIsUploadingIcon(true);
+    try {
+      const response = await uploadFile(file);
+      console.log('Icon upload response:', response);
+      const fileId = response?.data?.id || response?.id;
+      const fileUrl = response?.data?.url || response?.url;
+      setValue('icon_id', fileId, { shouldValidate: true });
+      setIconPreview(`${CONFIG.assetsDir}${fileUrl}`);
+      toast.success('آیکون آپلود شد');
+    } catch (error) {
+      console.error('Icon upload error:', error);
+      toast.error('خطا در آپلود آیکون');
+    } finally {
+      setIsUploadingIcon(false);
+    }
+  };
+
+  const handleRemoveIcon = () => {
+    setValue('icon_id', null);
+    setIconPreview(null);
+  };
+
   const onSubmit = handleSubmit(async (data) => {
     try {
       const formattedData = {
@@ -146,6 +176,7 @@ export function TestCreateForm({ onSuccess }) {
       toast.success('آزمون با موفقیت ایجاد شد');
       reset();
       setImagePreview(null);
+      setIconPreview(null);
       onSuccess?.();
     } catch (error) {
       console.error(error);
@@ -219,6 +250,53 @@ export function TestCreateForm({ onSuccess }) {
                 onChange={(e) => {
                   if (e.target.files) {
                     handleImageUpload(Array.from(e.target.files));
+                  }
+                }}
+              />
+            </Button>
+          )}
+        </Box>
+
+        <Box>
+          <Typography variant="subtitle2" sx={{ mb: 1 }}>
+            آیکون آزمون
+          </Typography>
+          {isUploadingIcon ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 3, border: '1px dashed', borderColor: 'divider', borderRadius: 1 }}>
+              <CircularProgress size={24} />
+            </Box>
+          ) : iconPreview ? (
+            <Stack direction="row" spacing={2} alignItems="flex-start">
+              <Box
+                component="img"
+                src={iconPreview}
+                sx={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 1 }}
+              />
+              <Button
+                size="small"
+                color="error"
+                variant="outlined"
+                onClick={handleRemoveIcon}
+                startIcon={<Iconify icon="mdi:delete" />}
+              >
+                حذف آیکون
+              </Button>
+            </Stack>
+          ) : (
+            <Button
+              component="label"
+              variant="outlined"
+              startIcon={<Iconify icon="mdi:cloud-upload" />}
+              sx={{ py: 2, px: 4 }}
+            >
+              انتخاب آیکون
+              <input
+                type="file"
+                accept="image/*"
+                hidden
+                onChange={(e) => {
+                  if (e.target.files) {
+                    handleIconUpload(Array.from(e.target.files));
                   }
                 }}
               />

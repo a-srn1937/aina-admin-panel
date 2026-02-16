@@ -25,6 +25,7 @@ const testSchema = z.object({
   is_active: z.boolean(),
   order: z.coerce.number().min(0, 'ترتیب باید عدد مثبت باشد'),
   image_id: z.number().nullable().optional(),
+  icon_id: z.number().nullable().optional(),
   min_participants: z.coerce.number().min(0),
   max_participants: z.coerce.number().min(0),
   system_prompt: z.string().optional(),
@@ -36,7 +37,9 @@ const testSchema = z.object({
 
 export function TestEditForm({ test, onSuccess }) {
   const [imagePreview, setImagePreview] = useState(null);
+  const [iconPreview, setIconPreview] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [isUploadingIcon, setIsUploadingIcon] = useState(false);
 
   const { mutateAsync: updateTest, isPending } = useUpdateTest();
   const { mutateAsync: uploadFile } = useUploadFile();
@@ -46,6 +49,7 @@ export function TestEditForm({ test, onSuccess }) {
     is_active: test?.is_active ?? true,
     order: test?.order || 0,
     image_id: test?.image_id || null,
+    icon_id: test?.icon_id || null,
     min_participants: test?.min_participants || 0,
     max_participants: test?.max_participants || 0,
     system_prompt: test?.system_prompt || '',
@@ -67,6 +71,7 @@ export function TestEditForm({ test, onSuccess }) {
         is_active: test.is_active ?? true,
         order: test.order || 0,
         image_id: test.image_id || null,
+        icon_id: test.icon_id || null,
         min_participants: test.min_participants || 0,
         max_participants: test.max_participants || 0,
         system_prompt: test.system_prompt || '',
@@ -80,6 +85,11 @@ export function TestEditForm({ test, onSuccess }) {
       } else if (test.image) {
         // Legacy: if image is a string URL
         setImagePreview(test.image);
+      }
+
+      // Set icon preview from existing icon_file
+      if (test.icon_file) {
+        setIconPreview(`${CONFIG.assetsDir}/${test.icon_file.path}`);
       }
     }
   }, [test, reset]);
@@ -108,6 +118,32 @@ export function TestEditForm({ test, onSuccess }) {
   const handleRemoveImage = () => {
     setValue('image_id', null);
     setImagePreview(null);
+  };
+
+  const handleIconUpload = async (acceptedFiles) => {
+    const file = acceptedFiles[0];
+    if (!file) return;
+
+    setIsUploadingIcon(true);
+    try {
+      const response = await uploadFile(file);
+      console.log('Icon upload response:', response);
+      const fileId = response?.data?.id || response?.id;
+      const fileUrl = response?.data?.url || response?.url;
+      setValue('icon_id', fileId, { shouldValidate: true });
+      setIconPreview(`${CONFIG.assetsDir}${fileUrl}`);
+      toast.success('آیکون آپلود شد');
+    } catch (error) {
+      console.error('Icon upload error:', error);
+      toast.error('خطا در آپلود آیکون');
+    } finally {
+      setIsUploadingIcon(false);
+    }
+  };
+
+  const handleRemoveIcon = () => {
+    setValue('icon_id', null);
+    setIconPreview(null);
   };
 
   const onSubmit = handleSubmit(async (data) => {
@@ -194,6 +230,53 @@ export function TestEditForm({ test, onSuccess }) {
                 onChange={(e) => {
                   if (e.target.files) {
                     handleImageUpload(Array.from(e.target.files));
+                  }
+                }}
+              />
+            </Button>
+          )}
+        </Box>
+
+        <Box>
+          <Typography variant="subtitle2" sx={{ mb: 1 }}>
+            آیکون آزمون
+          </Typography>
+          {isUploadingIcon ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 3, border: '1px dashed', borderColor: 'divider', borderRadius: 1 }}>
+              <CircularProgress size={24} />
+            </Box>
+          ) : iconPreview ? (
+            <Stack direction="row" spacing={2} alignItems="flex-start">
+              <Box
+                component="img"
+                src={iconPreview}
+                sx={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 1 }}
+              />
+              <Button
+                size="small"
+                color="error"
+                variant="outlined"
+                onClick={handleRemoveIcon}
+                startIcon={<Iconify icon="mdi:delete" />}
+              >
+                حذف آیکون
+              </Button>
+            </Stack>
+          ) : (
+            <Button
+              component="label"
+              variant="outlined"
+              startIcon={<Iconify icon="mdi:cloud-upload" />}
+              sx={{ py: 2, px: 4 }}
+            >
+              انتخاب آیکون
+              <input
+                type="file"
+                accept="image/*"
+                hidden
+                onChange={(e) => {
+                  if (e.target.files) {
+                    handleIconUpload(Array.from(e.target.files));
                   }
                 }}
               />
