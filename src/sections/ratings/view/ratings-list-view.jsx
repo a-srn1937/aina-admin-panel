@@ -414,7 +414,7 @@ export function RatingsListView() {
                           </TableCell>
                           <TableCell>
                             <Typography variant="body2">
-                              {rating.test?.slug || rating.context || '-'}
+                              {rating.context || rating.test?.slug || '-'}
                             </Typography>
                           </TableCell>
                           <TableCell>
